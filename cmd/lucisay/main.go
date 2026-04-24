@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/snufkin23/lucisay/internal/adapters/ai"
 	"github.com/snufkin23/lucisay/internal/adapters/config"
 	"github.com/snufkin23/lucisay/internal/core/service"
@@ -26,6 +28,11 @@ func main() {
 	// Composition Root: wiring adapters to services
 	groqClient := ai.NewGroqClient(cfg)
 	aiSvc := service.NewAIService(groqClient)
+
+	// Configure the loading animation (spinner)
+	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond)
+	s.Suffix = " 🐱 lucisay is thinking..."
+	s.Color = "\033[36m" // Cyan color
 
 	// Interactive mode: REPL (Read-Eval-Print Loop)
 	fmt.Println("🐱 Welcome to lucisay! (Type 'exit' or 'quit' to leave)")
@@ -49,8 +56,15 @@ func main() {
 			break
 		}
 
+		// Start loading animation
+		s.Start()
+
 		// Execute use case: get AI response
 		resp, err := aiSvc.GenerateResponse(userInput)
+		
+		// Stop loading animation immediately after response
+		s.Stop()
+
 		if err != nil {
 			l.Error("failed to generate response", err)
 			continue
