@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 
+	"github.com/snufkin23/lucisay/internal/core/domain"
 	"github.com/snufkin23/lucisay/internal/core/ports"
 )
 
@@ -21,7 +22,7 @@ func NewAIService(provider ports.AIProvider) *AIService {
 // GenerateResponse takes a user prompt and returns a response from the AI provider
 func (s *AIService) GenerateResponse(prompt string) (string, error) {
 	if prompt == "" {
-		return "", fmt.Errorf("service.GenerateResponse: prompt cannot be empty")
+		return "", fmt.Errorf("service.GenerateResponse: %w", domain.ErrInvalidInput)
 	}
 
 	resp, err := s.provider.Generate(prompt)
