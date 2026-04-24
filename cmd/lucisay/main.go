@@ -32,7 +32,6 @@ func main() {
 	// Configure the loading animation (spinner)
 	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond)
 	s.Suffix = " 🐱 lucisay is thinking..."
-	s.Color = "\033[36m" // Cyan color
 
 	// Interactive mode: REPL (Read-Eval-Print Loop)
 	fmt.Println("🐱 Welcome to lucisay! (Type 'exit' or 'quit' to leave)")
