@@ -31,12 +31,12 @@ func NewGroqClient(cfg *config.Config) *GroqClient {
 
 // Generate calls the Groq API to generate a response for the given prompt
 func (c *GroqClient) Generate(prompt string) (*domain.AIResponse, error) {
-	body := groqRequest{
+	body := GroqRequest{
 		Model: c.cfg.Model,
-		Messages: []map[string]string{
+		Messages: []GroqMessage{
 			{
-				"role":    "user",
-				"content": prompt,
+				Role:    "user",
+				Content: prompt,
 			},
 		},
 	}
@@ -69,7 +69,7 @@ func (c *GroqClient) Generate(prompt string) (*domain.AIResponse, error) {
 		return nil, fmt.Errorf("ai.Generate non-200 (%d): %s", res.StatusCode, string(respBody))
 	}
 
-	var groqResp groqResponse
+	var groqResp GroqResponse
 	if err := json.NewDecoder(res.Body).Decode(&groqResp); err != nil {
 		return nil, fmt.Errorf("ai.Generate decode: %w", err)
 	}

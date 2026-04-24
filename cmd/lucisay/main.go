@@ -1,15 +1,10 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	"strings"
-
 	"github.com/snufkin23/lucisay/internal/adapters/ai"
+	"github.com/snufkin23/lucisay/internal/adapters/cli"
 	"github.com/snufkin23/lucisay/internal/adapters/config"
 	"github.com/snufkin23/lucisay/internal/core/service"
-	"github.com/snufkin23/lucisay/internal/utils/catsay"
 	"github.com/snufkin23/lucisay/internal/utils/logger"
 )
 
@@ -27,41 +22,9 @@ func main() {
 	groqClient := ai.NewGroqClient(cfg)
 	aiSvc := service.NewAIService(groqClient)
 
-	// Interactive mode: REPL (Read-Eval-Print Loop)
-	fmt.Println("🐱 Welcome to lucisay! (Type 'exit' or 'quit' to leave)")
-	
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("\nYou: ")
-		if !scanner.Scan() {
-			break
-		}
+	// Initialize the CLI adapter
+	app := cli.NewApp(aiSvc, l)
 
-		userInput := strings.TrimSpace(scanner.Text())
-		if userInput == "" {
-			continue
-		}
-
-		// Check for exit commands
-		lowerInput := strings.ToLower(userInput)
-		if lowerInput == "exit" || lowerInput == "quit" {
-			fmt.Println("🐱 Bye bye!")
-			break
-		}
-
-		// Execute use case: get AI response
-		resp, err := aiSvc.GenerateResponse(userInput)
-		if err != nil {
-			l.Error("failed to generate response", err)
-			continue
-		}
-
-		// Format the response using the cat-say formatter
-		formattedOutput := catsay.Format(resp)
-		l.Raw(formattedOutput)
-	}
-
-	if err := scanner.Err(); err != nil {
-		l.Fatal("error reading input", err)
-	}
+	// Start the application
+	app.Run()
 }
