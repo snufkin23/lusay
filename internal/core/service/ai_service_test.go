@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/snufkin23/lucisay/internal/core/domain"
+	"github.com/snufkin23/lusay/internal/core/domain"
 )
 
 // MockAIProvider is a mock implementation of the AIProvider port
