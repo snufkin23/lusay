@@ -2,9 +2,11 @@ package service
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
 
-	"github.com/snufkin23/lucisay/internal/core/domain"
-	"github.com/snufkin23/lucisay/internal/core/ports"
+	"github.com/snufkin23/lusay/internal/core/domain"
+	"github.com/snufkin23/lusay/internal/core/ports"
 )
 
 // AIService orchestrates AI related use cases
@@ -19,15 +21,32 @@ func NewAIService(provider ports.AIProvider) *AIService {
 	}
 }
 
-// GenerateResponse takes a user prompt and returns a response from the AI provider
-func (s *AIService) GenerateResponse(prompt string) (string, error) {
+// GenerateResponse handles the flow from user prompt to mood-aware response
+func (s *AIService) GenerateResponse(prompt string) (*domain.CatResponse, error) {
 	if prompt == "" {
-		return "", fmt.Errorf("service.GenerateResponse: %w", domain.ErrInvalidInput)
+		return nil, fmt.Errorf("service.GenerateResponse: %w", domain.ErrInvalidInput)
 	}
 
 	resp, err := s.provider.Generate(prompt)
 	if err != nil {
-		return "", fmt.Errorf("service.GenerateResponse: %w", err)
+		return nil, fmt.Errorf("service.GenerateResponse: %w", err)
 	}
-	return resp.Content, nil
+
+	// Parse mood tag [MOOD] and clean text
+	mood, cleanText := s.parseMood(resp.Content)
+
+	return &domain.CatResponse{
+		Text: cleanText,
+		Mood: mood,
+	}, nil
+}
+
+// parseMood extracts mood tag and returns clean content
+func (s *AIService) parseMood(content string) (string, string) {
+	re := regexp.MustCompile(`\[(HAPPY|NERD|SHOCKED|LAZY|HISS)\]`)
+	matches := re.FindStringSubmatch(content)
+	if len(matches) > 1 {
+		return matches[1], strings.TrimSpace(re.ReplaceAllString(content, ""))
+	}
+	return "NEUTRAL", content
 }
