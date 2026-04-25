@@ -7,9 +7,9 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/snufkin23/lucisay/internal/adapters/config"
-	"github.com/snufkin23/lucisay/internal/core/domain"
-	"github.com/snufkin23/lucisay/internal/core/ports"
+	"github.com/snufkin23/lusay/internal/adapters/config"
+	"github.com/snufkin23/lusay/internal/core/domain"
+	"github.com/snufkin23/lusay/internal/core/ports"
 )
 
 // Compile-time assertion to ensure GroqClient implements AIProvider port
@@ -60,13 +60,22 @@ func (c *GroqClient) Generate(prompt string) (*domain.AIResponse, error) {
 
 	res, err := c.client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("ai.Generate do: %w", err)
+		return nil, fmt.Errorf("ai.Generate do: %w", domain.ErrNetworkFailure)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		respBody, _ := io.ReadAll(res.Body)
-		return nil, fmt.Errorf("ai.Generate non-200 (%d): %s", res.StatusCode, string(respBody))
+		switch res.StatusCode {
+		case http.StatusTooManyRequests:
+			return nil, fmt.Errorf("ai.Generate rate limit: %w", domain.ErrRateLimitExceeded)
+		case http.StatusBadRequest:
+			return nil, fmt.Errorf("ai.Generate bad request: %w", domain.ErrInvalidInput)
+		case http.StatusForbidden:
+			return nil, fmt.Errorf("ai.Generate forbidden: %w", domain.ErrContentFiltered)
+		default:
+			return nil, fmt.Errorf("ai.Generate non-200 (%d): %s", res.StatusCode, string(respBody))
+		}
 	}
 
 	var groqResp GroqResponse
@@ -75,10 +84,15 @@ func (c *GroqClient) Generate(prompt string) (*domain.AIResponse, error) {
 	}
 
 	if len(groqResp.Choices) == 0 {
-		return nil, domain.ErrAIProviderFailure
+		return nil, fmt.Errorf("ai.Generate no choices: %w", domain.ErrEmptyResponse)
+	}
+
+	content := groqResp.Choices[0].Message.Content
+	if content == "" {
+		return nil, fmt.Errorf("ai.Generate empty content: %w", domain.ErrEmptyResponse)
 	}
 
 	return &domain.AIResponse{
-		Content: groqResp.Choices[0].Message.Content,
+		Content: content,
 	}, nil
 }
