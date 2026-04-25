@@ -11,7 +11,6 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/snufkin23/lusay/internal/core/service"
-	"github.com/snufkin23/lusay/internal/utils/catsay"
 	"github.com/snufkin23/lusay/internal/utils/logger"
 )
 
@@ -78,7 +77,7 @@ func (a *App) Run() {
 			continue
 		}
 
-		catResp := catsay.Format(resp.Text, resp.Mood)
+		catResp := Format(resp.Text, resp.Mood)
 		a.renderCatResponse(catResp)
 	}
 
@@ -106,7 +105,7 @@ func (a *App) printBanner() {
 	}
 
 	color.New(color.FgHiBlack, color.Italic).Println("  ~ A philosophical orange cat who really doesn't want to help you ~")
-	color.New(color.FgHiBlack).Println("  Type 'exit' or 'quit' to release him. 'clear' to tidy up.\n")
+	color.New(color.FgHiBlack).Println("  Type 'exit' or 'quit' to release him. 'clear' to tidy up.")
 }
 
 // printGoodbye renders a moody farewell
@@ -117,7 +116,7 @@ func (a *App) printGoodbye() {
 	color.New(color.FgYellow).Println("  )  ~~~  (")
 	color.New(color.FgYellow).Println(" /  zzzzz  \\")
 	color.New(color.FgHiBlack, color.Italic).Println("\n  *stretches all four paws*")
-	color.New(color.FgHiMagenta).Println("  🐱 Finally. Back to my nap spot. Don't call me.\n")
+	color.New(color.FgHiMagenta).Println("  🐱 Finally. Back to my nap spot. Don't call me.")
 }
 
 // printHissWarning renders the hissing danger response
@@ -184,7 +183,7 @@ func (a *App) animateThinking(stop chan bool) {
 }
 
 // renderCatResponse handles the sequenced manga-scroll animation
-func (a *App) renderCatResponse(catResp catsay.CatResponse) {
+func (a *App) renderCatResponse(catResp CatResponse) {
 	topBorder    := "╔══════════════════════════════════════╗"
 	bottomBorder := "╚══════════════════════════════════════╝"
 	divider      := "  ·····◈·····◈·····◈·····◈·····◈·····"
@@ -278,7 +277,7 @@ func (a *App) clearScreen() {
 	cmd := exec.Command("clear")
 	cmd.Stdout = os.Stdout
 	cmd.Run()
-	color.New(color.FgHiBlack, color.Italic).Println("  ~ The screen has been purr-ified ~\n")
+	color.New(color.FgHiBlack, color.Italic).Println("  ~ The screen has been purr-ified ~")
 }
 
 // randomInterruption adds flavor to the cat persona

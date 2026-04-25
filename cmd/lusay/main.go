@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	"github.com/snufkin23/lusay/internal/adapters/ai"
 	"github.com/snufkin23/lusay/internal/adapters/cli"
 	"github.com/snufkin23/lusay/internal/adapters/config"
@@ -22,14 +20,7 @@ func main() {
 	}
 
 	// Composition Root: wiring adapters to services
-	var provider ports.AIProvider
-	
-	// Check if we should use the server client or the direct Groq client
-	if os.Getenv("LUSAY_SERVER_URL") != "" {
-		provider = ai.NewServerClient(os.Getenv("LUSAY_SERVER_URL"))
-	} else {
-		provider = ai.NewGroqClient(cfg)
-	}
+	var provider ports.AIProvider = ai.NewGroqClient(cfg)
 
 	// 1. Apply Guard Middleware (Filter harmful input)
 	provider = service.NewGuardProvider(provider)

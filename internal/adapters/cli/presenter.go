@@ -1,10 +1,11 @@
-package catsay
+package cli
 
 import (
+	"regexp"
 	"strings"
 )
 
-// CatResponse holds the components of a cat's response
+// CatResponse holds the components of a cat's response for CLI presentation
 type CatResponse struct {
 	Stages []Stage
 	Art    string
@@ -16,7 +17,9 @@ type Stage struct {
 	Content string
 }
 
-// Format parses the persona-generated text into structured stages
+var stageRegex = regexp.MustCompile(`^([^\s]+)\s+([^:]+):`)
+
+// Format parses the persona-generated text into structured stages for the CLI
 func Format(text string, mood string) CatResponse {
 	stages := []Stage{}
 	lines := strings.Split(text, "\n")
@@ -29,29 +32,21 @@ func Format(text string, mood string) CatResponse {
 		if line == "" {
 			continue
 		}
-		if strings.Contains(line, "💭 THE DAYDREAM:") {
+
+		matches := stageRegex.FindStringSubmatch(line)
+		if len(matches) > 2 {
+			// New stage started
 			if currentHeader != "" {
 				stages = append(stages, Stage{Header: currentHeader, Content: strings.TrimSpace(currentContent.String())})
 				currentContent.Reset()
 			}
-			currentHeader = "💭 THE DAYDREAM"
-			rest := strings.TrimSpace(strings.TrimPrefix(line, "💭 THE DAYDREAM:"))
-			currentContent.WriteString(rest)
-		} else if strings.Contains(line, "🐾 THE MEOW:") {
-			if currentHeader != "" {
-				stages = append(stages, Stage{Header: currentHeader, Content: strings.TrimSpace(currentContent.String())})
-				currentContent.Reset()
-			}
-			currentHeader = "🐾 THE MEOW"
-			rest := strings.TrimSpace(strings.TrimPrefix(line, "🐾 THE MEOW:"))
-			currentContent.WriteString(rest)
-		} else if strings.Contains(line, "💤 THE NAP:") {
-			if currentHeader != "" {
-				stages = append(stages, Stage{Header: currentHeader, Content: strings.TrimSpace(currentContent.String())})
-				currentContent.Reset()
-			}
-			currentHeader = "💤 THE NAP"
-			rest := strings.TrimSpace(strings.TrimPrefix(line, "💤 THE NAP:"))
+			
+			// Extract header (Emoji + Label)
+			currentHeader = matches[1] + " " + matches[2]
+			
+			// The content is everything after the colon
+			contentStart := strings.Index(line, ":") + 1
+			rest := strings.TrimSpace(line[contentStart:])
 			currentContent.WriteString(rest)
 		} else {
 			if currentContent.Len() > 0 {
@@ -75,7 +70,6 @@ func Format(text string, mood string) CatResponse {
 func getDetailedCat(mood string) string {
 	switch strings.ToUpper(mood) {
 	case "HAPPY":
-		// Blissful, half-lidded, tail curled high
 		return `   /\_____/\
   /  ^   ^  \
  ( (  uwu  ) )
@@ -86,7 +80,6 @@ func getDetailedCat(mood string) string {
    (🐾) (🐾)`
 
 	case "SHOCKED":
-		// Wide-eyed, spiky fur, raised paws mid-air
 		return `  ^ /\_/|^ ^
  /| O   O |\
 | |  !!!  | |
@@ -97,7 +90,6 @@ func getDetailedCat(mood string) string {
  (🐾)   (🐾)`
 
 	case "NERD":
-		// Glasses on, one paw raised like a professor
 		return `   /\_____/\
   / -o---o- \
  |  (=====)  |
@@ -109,7 +101,6 @@ func getDetailedCat(mood string) string {
    (🐾) (🐾)`
 
 	case "SNEAKY":
-		// Crouched low, one eye barely open, tail coiled
 		return `    ___
   /     \__
  | -   .   )
@@ -119,7 +110,6 @@ func getDetailedCat(mood string) string {
   (🐾)(🐾)`
 
 	case "HISSING":
-		// Arched back, spiky spine, bared fangs
 		return `  ^ /\_/\ ^
  ^| >   < |^
  ^|  VVV  |^
