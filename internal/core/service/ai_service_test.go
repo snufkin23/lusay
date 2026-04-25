@@ -21,16 +21,16 @@ func TestGenerateResponse(t *testing.T) {
 		name          string
 		prompt        string
 		mockBehavior  func(prompt string) (*domain.AIResponse, error)
-		expectedResp  string
+		expectedText  string
 		expectedError bool
 	}{
 		{
 			name:   "success",
 			prompt: "Hello",
 			mockBehavior: func(prompt string) (*domain.AIResponse, error) {
-				return &domain.AIResponse{Content: "Hi there!"}, nil
+				return &domain.AIResponse{Content: "[HAPPY] Hi there!"}, nil
 			},
-			expectedResp:  "Hi there!",
+			expectedText:  "Hi there!",
 			expectedError: false,
 		},
 		{
@@ -39,14 +39,14 @@ func TestGenerateResponse(t *testing.T) {
 			mockBehavior: func(prompt string) (*domain.AIResponse, error) {
 				return nil, errors.New("api failure")
 			},
-			expectedResp:  "",
+			expectedText:  "",
 			expectedError: true,
 		},
 		{
 			name:          "empty prompt",
 			prompt:        "",
 			mockBehavior:  nil, // should not be called
-			expectedResp:  "",
+			expectedText:  "",
 			expectedError: true,
 		},
 	}
@@ -62,8 +62,8 @@ func TestGenerateResponse(t *testing.T) {
 				t.Errorf("GenerateResponse() error = %v, expectedError %v", err, tt.expectedError)
 				return
 			}
-			if resp != tt.expectedResp {
-				t.Errorf("GenerateResponse() = %v, expected %v", resp, tt.expectedResp)
+			if resp != nil && resp.Text != tt.expectedText {
+				t.Errorf("GenerateResponse() text = %v, expected %v", resp.Text, tt.expectedText)
 			}
 		})
 	}
