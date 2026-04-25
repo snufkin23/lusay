@@ -1,7 +1,7 @@
 .PHONY: run build test fmt vet clean lint tidy test-race
 
-APP_NAME=lucisay
-MAIN_FILE=cmd/lucisay/main.go
+APP_NAME=lusay
+MAIN_FILE=cmd/lusay/main.go
 BIN=bin/$(APP_NAME)
 
 # Standard Build
@@ -38,4 +38,4 @@ clean:
 
 # Manual Verification
 demo: build
-	$(BIN) say --subject "cat" --message "Hello from Lucisay!"
+	$(BIN) say --subject "cat" --message "Hello from Lusay!"

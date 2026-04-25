@@ -33,14 +33,15 @@ jobs:
       - name: Build Binaries
         run: |
           mkdir -p dist
-          # Linux
-          GOOS=linux GOARCH=amd64 go build -o dist/lucisay-linux-amd64 cmd/lucisay/main.go
-          # macOS (Intel)
-          GOOS=darwin GOARCH=amd64 go build -o dist/lucisay-darwin-amd64 cmd/lucisay/main.go
-          # macOS (Apple Silicon)
-          GOOS=darwin GOARCH=arm64 go build -o dist/lucisay-darwin-arm64 cmd/lucisay/main.go
-          # Windows
-          GOOS=windows GOARCH=amd64 go build -o dist/lucisay-windows-amd64.exe cmd/lucisay/main.go
+           # Linux
+           GOOS=linux GOARCH=amd64 go build -o dist/lusay-linux-amd64 cmd/lusay/main.go
+           # macOS (Intel)
+           GOOS=darwin GOARCH=amd64 go build -o dist/lusay-darwin-amd64 cmd/lusay/main.go
+           # macOS (Apple Silicon)
+           GOOS=darwin GOARCH=arm64 go build -o dist/lusay-darwin-arm64 cmd/lusay/main.go
+           # Windows
+           GOOS=windows GOARCH=amd64 go build -o dist/lusay-windows-amd64.exe cmd/lusay/main.go
+
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GROQ_MODEL: ${{ secrets.GROQ_MODEL }}

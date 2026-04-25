@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 
 	"github.com/fatih/color"
@@ -12,6 +13,7 @@ import (
 type Logger struct {
 	info *log.Logger
 	err  *log.Logger
+	slog *slog.Logger
 }
 
 // New creates a new instance of Logger with predefined colors and prefixes
@@ -22,7 +24,13 @@ func New() *Logger {
 	return &Logger{
 		info: log.New(os.Stdout, "  "+catColor("🐱")+" ", 0),
 		err:  log.New(os.Stderr, "  "+errColor("❌")+" ", log.Lshortfile),
+		slog: slog.Default(),
 	}
+}
+
+// Slog returns the underlying slog.Logger for infrastructure components
+func (l *Logger) Slog() *slog.Logger {
+	return l.slog
 }
 
 // Info logs an informational message in white
