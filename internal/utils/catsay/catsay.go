@@ -1,45 +1,142 @@
 package catsay
 
 import (
-	"fmt"
 	"strings"
 )
 
-// Format wraps the text in a speech bubble and adds a cat ASCII art below it
-func Format(text string) string {
-	if text == "" {
-		text = "..."
-	}
+// CatResponse holds the components of a cat's response
+type CatResponse struct {
+	Stages []Stage
+	Art    string
+	Mood   string
+}
 
-	// Basic bubble formatting
+type Stage struct {
+	Header  string
+	Content string
+}
+
+// Format parses the persona-generated text into structured stages
+func Format(text string, mood string) CatResponse {
+	stages := []Stage{}
 	lines := strings.Split(text, "\n")
-	var bubble strings.Builder
 
-	// Top border
-	bubble.WriteString("  ")
-	bubble.WriteString(strings.Repeat("_", len(lines[0])+2))
-	bubble.WriteString("\n")
+	var currentHeader string
+	var currentContent strings.Builder
 
-	// Content
 	for _, line := range lines {
-		bubble.WriteString(fmt.Sprintf(" < %s >\n", line))
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		if strings.Contains(line, "💭 THE DAYDREAM:") {
+			if currentHeader != "" {
+				stages = append(stages, Stage{Header: currentHeader, Content: strings.TrimSpace(currentContent.String())})
+				currentContent.Reset()
+			}
+			currentHeader = "💭 THE DAYDREAM"
+			rest := strings.TrimSpace(strings.TrimPrefix(line, "💭 THE DAYDREAM:"))
+			currentContent.WriteString(rest)
+		} else if strings.Contains(line, "🐾 THE MEOW:") {
+			if currentHeader != "" {
+				stages = append(stages, Stage{Header: currentHeader, Content: strings.TrimSpace(currentContent.String())})
+				currentContent.Reset()
+			}
+			currentHeader = "🐾 THE MEOW"
+			rest := strings.TrimSpace(strings.TrimPrefix(line, "🐾 THE MEOW:"))
+			currentContent.WriteString(rest)
+		} else if strings.Contains(line, "💤 THE NAP:") {
+			if currentHeader != "" {
+				stages = append(stages, Stage{Header: currentHeader, Content: strings.TrimSpace(currentContent.String())})
+				currentContent.Reset()
+			}
+			currentHeader = "💤 THE NAP"
+			rest := strings.TrimSpace(strings.TrimPrefix(line, "💤 THE NAP:"))
+			currentContent.WriteString(rest)
+		} else {
+			if currentContent.Len() > 0 {
+				currentContent.WriteString(" ")
+			}
+			currentContent.WriteString(line)
+		}
 	}
 
-	// Bottom border
-	bubble.WriteString("    ")
-	bubble.WriteString(strings.Repeat("-", len(lines[0])+2))
-	bubble.WriteString("\n")
+	if currentHeader != "" {
+		stages = append(stages, Stage{Header: currentHeader, Content: strings.TrimSpace(currentContent.String())})
+	}
 
-	// Cute Cat Art
-	cat := `   |\---/|
-   | o_o |
-    \_^_/
-    /   \
-   /     \
-   |  _  |
-   | ( ) |
-   \  _  /
-    \___/`
+	return CatResponse{
+		Stages: stages,
+		Art:    getDetailedCat(mood),
+		Mood:   mood,
+	}
+}
 
-	return bubble.String() + cat
+func getDetailedCat(mood string) string {
+	switch strings.ToUpper(mood) {
+	case "HAPPY":
+		// Blissful, half-lidded, tail curled high
+		return `   /\_____/\
+  /  ^   ^  \
+ ( (  uwu  ) )
+  \ ` + "`" + `~~~~~` + "`" + ` /
+  /         \
+ |   |   |   |
+  \___|___|__/
+   (🐾) (🐾)`
+
+	case "SHOCKED":
+		// Wide-eyed, spiky fur, raised paws mid-air
+		return `  ^ /\_/|^ ^
+ /| O   O |\
+| |  !!!  | |
+ \|  ___  |/
+  / /   \ \
+ / / \_/ \ \
+|_|       |_|
+ (🐾)   (🐾)`
+
+	case "NERD":
+		// Glasses on, one paw raised like a professor
+		return `   /\_____/\
+  / -o---o- \
+ |  (=====)  |
+ |   \___/   |
+  \  [===]  /
+  /  |   |  \
+ |   |   |   |
+  \___|___|__/
+   (🐾) (🐾)`
+
+	case "SNEAKY":
+		// Crouched low, one eye barely open, tail coiled
+		return `    ___
+  /     \__
+ | -   .   )
+  \  ~~~  /
+  / ___  /~~~~~)
+ |_|   |_|
+  (🐾)(🐾)`
+
+	case "HISSING":
+		// Arched back, spiky spine, bared fangs
+		return `  ^ /\_/\ ^
+ ^| >   < |^
+ ^|  VVV  |^
+  \ ~~~~~ /
+  /^ ^^^ ^\
+ / ^^^^^^^  \
+|_|         |_|
+ (🐾)     (🐾)`
+
+	default:
+		return `   /\_____/\
+  /  o   o  \
+ (    ---    )
+  \  ~~~~~  /
+  /         \
+ |   |   |   |
+  \___|___|__/
+   (🐾) (🐾)`
+	}
 }
