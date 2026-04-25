@@ -11,7 +11,6 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/snufkin23/lusay/internal/core/service"
-	"github.com/snufkin23/lusay/internal/utils/catsay"
 	"github.com/snufkin23/lusay/internal/utils/logger"
 )
 
@@ -78,7 +77,7 @@ func (a *App) Run() {
 			continue
 		}
 
-		catResp := catsay.Format(resp.Text, resp.Mood)
+		catResp := Format(resp.Text, resp.Mood)
 		a.renderCatResponse(catResp)
 	}
 
@@ -184,7 +183,7 @@ func (a *App) animateThinking(stop chan bool) {
 }
 
 // renderCatResponse handles the sequenced manga-scroll animation
-func (a *App) renderCatResponse(catResp catsay.CatResponse) {
+func (a *App) renderCatResponse(catResp CatResponse) {
 	topBorder    := "╔══════════════════════════════════════╗"
 	bottomBorder := "╚══════════════════════════════════════╝"
 	divider      := "  ·····◈·····◈·····◈·····◈·····◈·····"
