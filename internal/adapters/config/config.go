@@ -28,14 +28,8 @@ func LoadConfig() (*Config, error) {
 	}
 
 	model := os.Getenv(envModel)
-	if model == "" {
-		model = "llama-3.3-70b-versatile"
-	}
 
 	baseURL := os.Getenv(envGroqBaseURL)
-	if baseURL == "" {
-		baseURL = "https://api.groq.com/openai/v1/chat/completions"
-	}
 
 	return &Config{
 		GroqAPIKey:  key,

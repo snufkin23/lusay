@@ -10,29 +10,22 @@ import (
 )
 
 func main() {
-	// initialize logger
 	l := logger.New()
 
-	// load environment configuration
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		l.Fatal("failed to load config", err)
 	}
 
-	// Composition Root: wiring adapters to services
 	var provider ports.AIProvider = ai.NewGroqClient(cfg)
 
-	// 1. Apply Guard Middleware (Filter harmful input)
 	provider = service.NewGuardProvider(provider)
 
-	// 2. Apply Persona Middleware (Inject cat personality)
 	provider = service.NewPersonaProvider(provider)
 
 	aiSvc := service.NewAIService(provider)
 
-	// Initialize the CLI adapter
 	app := cli.NewApp(aiSvc, l)
 
-	// Start the application
 	app.Run()
 }
