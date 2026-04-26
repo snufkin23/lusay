@@ -65,12 +65,15 @@ func (a *App) Run() {
 
 		resp, err := a.aiSvc.GenerateResponse(userInput)
 		stopAnim <- true
-		time.Sleep(60 * time.Millisecond) // let goroutine flush
+		time.Sleep(60 * time.Millisecond)
 
 		if err != nil {
 			if err.Error() == "service.GenerateResponse: harmful or dangerous content detected" {
 				fmt.Println()
 				a.printHissWarning()
+			} else if strings.Contains(err.Error(), "network failure") {
+				fmt.Println()
+				a.printNoInternetWarning()
 			} else {
 				a.logger.Error("failed to generate response", err)
 			}
@@ -138,6 +141,23 @@ func (a *App) printHissWarning() {
 	fmt.Println()
 }
 
+// printNoInternetWarning renders the "no connection" response
+func (a *App) printNoInternetWarning() {
+	noInternetColor := color.New(color.FgCyan, color.Bold)
+	lines := []string{
+		`  (\_/)`,
+		`  ( •_•)`,
+		`  / >🌐?`,
+	}
+	for _, l := range lines {
+		noInternetColor.Println("  " + l)
+		time.Sleep(100 * time.Millisecond)
+	}
+	fmt.Println()
+	color.New(color.FgCyan).Println("  🐱 *paws at the air* My whiskers are silent. I think the internet has vanished into the void.")
+	fmt.Println()
+}
+
 // animateThinking shows a paw-print crawl while Lusay "thinks"
 func (a *App) animateThinking(stop chan bool) {
 	frames := []string{
@@ -172,7 +192,7 @@ func (a *App) animateThinking(stop chan bool) {
 	for {
 		select {
 		case <-stop:
-			fmt.Print("\r\033[K") // clear line
+			fmt.Print("\r\033[K")
 			return
 		default:
 			thinkColor.Printf("\r  %s  %s...", frames[i], label)
@@ -184,18 +204,18 @@ func (a *App) animateThinking(stop chan bool) {
 
 // renderCatResponse handles the sequenced manga-scroll animation
 func (a *App) renderCatResponse(catResp CatResponse) {
-	topBorder    := "╔══════════════════════════════════════╗"
+	topBorder := "╔══════════════════════════════════════╗"
 	bottomBorder := "╚══════════════════════════════════════╝"
-	divider      := "  ·····◈·····◈·····◈·····◈·····◈·····"
+	divider := "  ·····◈·····◈·····◈·····◈·····◈·····"
 
 	fmt.Println()
 	color.New(color.FgHiBlack).Println("  " + topBorder)
 	fmt.Println()
 
 	stageColors := []*color.Color{
-		color.New(color.FgYellow, color.Bold),    // DAYDREAM (Orange)
-		color.New(color.FgYellow, color.Bold),    // MEOW (Orange)
-		color.New(color.FgYellow, color.Bold),    // NAP (Orange)
+		color.New(color.FgYellow, color.Bold), // DAYDREAM (Orange)
+		color.New(color.FgYellow, color.Bold), // MEOW (Orange)
+		color.New(color.FgYellow, color.Bold), // NAP (Orange)
 	}
 
 	for i, stage := range catResp.Stages {

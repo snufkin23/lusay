@@ -12,7 +12,6 @@ import (
 	"github.com/snufkin23/lusay/internal/core/ports"
 )
 
-// Compile-time assertion to ensure GroqClient implements AIProvider port
 var _ ports.AIProvider = (*GroqClient)(nil)
 
 // GroqClient is the adapter for Groq AI API
@@ -21,7 +20,6 @@ type GroqClient struct {
 	client *http.Client
 }
 
-// NewGroqClient creates a new instance of GroqClient
 func NewGroqClient(cfg *config.Config) *GroqClient {
 	return &GroqClient{
 		cfg:    cfg,
